@@ -1,7 +1,10 @@
 package microservices.book.multiplication.service;
 
+
 import microservices.book.multiplication.domain.Multiplication;
 import microservices.book.multiplication.domain.MultiplicationResultAttempt;
+
+import java.util.List;
 
 public interface MultiplicationService {
 
@@ -10,4 +13,6 @@ public interface MultiplicationService {
 
     /* 곱셈 결과가 맞으면 true, 아니면 false */
     boolean checkAttempt(final MultiplicationResultAttempt resultAttempt);
+
+    public List<MultiplicationResultAttempt> getStatsForUser(String userAlias);
 }

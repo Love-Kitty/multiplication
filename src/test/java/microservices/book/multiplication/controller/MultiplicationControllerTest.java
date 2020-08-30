@@ -2,7 +2,10 @@ package microservices.book.multiplication.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import microservices.book.multiplication.domain.Multiplication;
+import microservices.book.multiplication.domain.MultiplicationResultAttempt;
+import microservices.book.multiplication.domain.User;
 import microservices.book.multiplication.service.MultiplicationService;
+import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +18,8 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -31,6 +36,8 @@ final class MultiplicationControllerTest {
     private MockMvc mvc;
 
     private JacksonTester<Multiplication> json;
+    private JacksonTester<MultiplicationResultAttempt> jsonResultAttempt;
+    private JacksonTester<List<MultiplicationResultAttempt>> jsonResultAttemptList;
 
     @Before
     public void setUp() {
@@ -46,6 +53,21 @@ final class MultiplicationControllerTest {
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
         assertThat(response.getContentAsString()).isEqualTo(json.write(new Multiplication(70, 20)).getJson());
+    }
+
+    @Test
+    public void getUserStats() throws Exception {
+        User user = new User("john doe");
+        Multiplication multiplication = new Multiplication(50, 70);
+        MultiplicationResultAttempt multiplicationResultAttempt = new MultiplicationResultAttempt(user, multiplication, 3500, true);
+        List<MultiplicationResultAttempt> recentAttmpts = Lists.newArrayList(multiplicationResultAttempt, multiplicationResultAttempt);
+
+        given(multiplicationService.getStatsForUser("john doe")).willReturn(recentAttmpts);
+
+        MockHttpServletResponse response = mvc.perform(get("/results").param("alias", "john doe")).andReturn().getResponse();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.getContentAsString()).isEqualTo(jsonResultAttemptList.write(recentAttmpts).getJson());
     }
 
 }
