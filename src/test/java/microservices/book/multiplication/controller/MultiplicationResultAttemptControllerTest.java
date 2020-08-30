@@ -56,14 +56,20 @@ public class MultiplicationResultAttemptControllerTest {
 
         User user = new User("John");
         Multiplication multiplication = new Multiplication(50,70);
-        MultiplicationResultAttempt attempt = new MultiplicationResultAttempt(user, multiplication, 3500);
+        MultiplicationResultAttempt attempt = new MultiplicationResultAttempt(user, multiplication, 3500, correct);
 
         MockHttpServletResponse response = mvc.perform(post("/results")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonResult.write(attempt).getJson())).andReturn().getResponse();
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.getContentAsString()).isEqualTo(jsonResponse.write(new MultiplicationResultController.ResultResponse(correct)).getJson());
+        assertThat(response.getContentAsString()).isEqualTo(
+                jsonResult.write(
+                        new MultiplicationResultAttempt(
+                          attempt.getUser(),
+                          attempt.getMultiplication(),
+                          attempt.getResultAttempt(), correct
+                        )).getJson());
     }
 
 
